@@ -6,10 +6,8 @@ class Solution {
         int length = 0;
         while (right < s.length()) {
             if (charMap.containsKey(s.charAt(right))) {
-                length = Math.max(length, right - left);
-                int tempLeft = charMap.get(s.charAt(right));
-                removeHashChar(left, tempLeft, s, charMap);
-                left = tempLeft + 1;
+                // left = charMap.get(s.charAt(right)) + 1;
+                left = Math.max(left, charMap.get(s.charAt(right)) + 1);
             }
             charMap.put(s.charAt(right), right);
             right++;
@@ -17,11 +15,5 @@ class Solution {
 
         }
         return length;
-    }
-
-    private void removeHashChar(int left, int tempLeft, String s, Map<Character, Integer> charMap) {
-        while (left <= tempLeft) {
-            charMap.remove(s.charAt(left++));
-        }
     }
 }
