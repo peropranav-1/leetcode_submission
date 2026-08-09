@@ -11,7 +11,7 @@ class Solution {
             }
         }
 
-        if (prev + 1 + nums[prev + 1] >= cur)
+        if (cur == 0)
             return true;
         return false;
     }
