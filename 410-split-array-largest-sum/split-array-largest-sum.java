@@ -12,10 +12,10 @@ class Solution {
         while (startPages <= maxPages) {
             int mid = (startPages + maxPages) / 2;
             int studentCount = getStudentCount(nums, mid);
-            if (studentCount > k) {
-                startPages = mid + 1;
-            } else {
+            if (studentCount <= k) {
                 maxPages = mid - 1;
+            } else {
+                startPages = mid + 1;
             }
 
         }
