@@ -13,45 +13,69 @@
  *     }
  * }
  */
-class Solution {
-    public List<List<Integer>> verticalTraversal(TreeNode root) {
-        Queue<TreeNode> queue = new LinkedList<>();
-        Map<Integer, Map<Integer, List<Integer>>> map = new HashMap<>();
-        getVerticalTraversal(root, queue, map);
-        return map.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> e.getValue().entrySet().stream()
-                        .sorted(Map.Entry.comparingByKey())
-                        .flatMap(re -> { Collections.sort(re.getValue()); return re.getValue().stream(); })
-                        .toList())
-                .toList();
+class NodeWithCords {
+    TreeNode node;
+    int level;
+    int vertical;
+
+    public NodeWithCords(TreeNode node, int level, int vertical) {
+        this.node = node;
+        this.level = level;
+        this.vertical = vertical;
     }
+}
 
-    private void getVerticalTraversal(TreeNode root, Queue<TreeNode> queue,
-                                      Map<Integer, Map<Integer, List<Integer>>> map) {
-        if (root == null) return;
-        Queue<int[]> posQueue = new LinkedList<>(); // tracks [row, col] per node
-        queue.add(root);
-        posQueue.add(new int[]{0, 0});
-
+public class Solution {
+    public List<List<Integer>> verticalTraversal(TreeNode root) {
+        List<List<Integer>> res = new ArrayList<>();
+        if (root == null)
+            return res;
+        Map<Integer, TreeMap<Integer, PriorityQueue<Integer>>> map = new TreeMap<>();
+        Queue<NodeWithCords> queue = new LinkedList<>();
+        queue.offer(new NodeWithCords(root, 0, 0));
         while (!queue.isEmpty()) {
-            TreeNode node = queue.poll();
-            int[] pos = posQueue.poll();
-            int row = pos[0], col = pos[1];
+            int size = queue.size();
 
-            map.computeIfAbsent(col, k -> new HashMap<>())
-               .computeIfAbsent(row, k -> new ArrayList<>())
-               .add(node.val);
-
-            if (node.left != null) {
-                queue.add(node.left);
-                posQueue.add(new int[]{row + 1, col - 1});
-            }
-            if (node.right != null) {
-                queue.add(node.right);
-                posQueue.add(new int[]{row + 1, col + 1});
+            for (int i = 0; i < size; i++) {
+                NodeWithCords node = queue.peek();
+                if (node != null && node.node.left != null) {
+                    queue.offer(new NodeWithCords(node.node.left, node.level + 1, node.vertical - 1));
+                }
+                if (node != null && node.node.right != null) {
+                    queue.offer(new NodeWithCords(node.node.right, node.level + 1, node.vertical + 1));
+                }
+                NodeWithCords curr = queue.peek();
+                if (curr == null) continue;
+                if (map.containsKey(curr.vertical)) {
+                    if (map.get(curr.vertical).containsKey(curr.level)) {
+                        PriorityQueue<Integer> pq = map.get(curr.vertical).get(curr.level);
+                        pq.add(curr.node.val);
+                        map.get(curr.vertical).put(curr.level, pq);
+                    } else {
+                        PriorityQueue<Integer> pq = new PriorityQueue<>();
+                        pq.add(curr.node.val);
+                        map.get(curr.vertical).put(curr.level, pq);
+                    }
+                } else {
+                    TreeMap<Integer, PriorityQueue<Integer>> levelMap = new TreeMap<>();
+                    PriorityQueue<Integer> pq = new PriorityQueue<>();
+                    pq.add(curr.node.val);
+                    levelMap.put(curr.level, pq);
+                    map.put(curr.vertical, levelMap);
+                }
+                queue.remove();
             }
         }
+        for (Map.Entry<Integer, TreeMap<Integer, PriorityQueue<Integer>>> entry : map.entrySet()) {
+            List<Integer> miniRes = new ArrayList<>();
+            for (Map.Entry<Integer, PriorityQueue<Integer>> insideEntry : entry.getValue().entrySet()) {
+                while (!insideEntry.getValue().isEmpty()) {
+                    miniRes.add(insideEntry.getValue().poll());
+                }
+                miniRes.addAll(insideEntry.getValue());
+            }
+            res.add(miniRes);
+        }
+        return res;
     }
 }
