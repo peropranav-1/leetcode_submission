@@ -1,20 +1,22 @@
 class Solution {
     public List<List<Integer>> subsets(int[] nums) {
-        List<List<Integer>> res = new ArrayList<>();
-        getAllSubset(0, res, new ArrayList<>(), nums);
-        return res;
+        List<List<Integer>> ans = new ArrayList<>();
+        List<Integer> semiAns =  new ArrayList<>();
+        getAns(ans, semiAns, 0, nums);
+        return ans;
     }
 
-    public static void getAllSubset(int index, List<List<Integer>> res, List<Integer> ans, int[] nums) {
+    private void getAns(List<List<Integer>> ans, List<Integer> semiAns, int index, int[] nums) {
         if (index == nums.length) {
-            res.add(new ArrayList<>(ans));
+            ans.add(new ArrayList<>(semiAns));
             return;
-        } else {
-            ans.add(nums[index]);
-            getAllSubset(index + 1, res, ans, nums);
-
-            ans.removeLast();
-            getAllSubset(index + 1, res, ans, nums);
         }
+
+        semiAns.add(nums[index]);
+        getAns(ans, semiAns, index + 1, nums);
+
+        semiAns.remove(Integer.valueOf(nums[index]));
+        getAns(ans, semiAns, index + 1, nums);
     }
+
 }
