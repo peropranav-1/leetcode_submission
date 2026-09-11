@@ -6,7 +6,9 @@ class Solution {
         // }
         // return getRob(nums.length - 1, nums, dp);
 
-        return getRobTabulation(nums);
+        // return getRobTabulation(nums);
+
+        return getRobTabulationWithSpaceOptimization(nums);
     }
 
     // private int getRob(int index, int[] nums, int[] dp) {
@@ -39,5 +41,23 @@ class Solution {
         }
 
         return dp[nums.length - 1];
+    }
+
+    private int getRobTabulationWithSpaceOptimization(int[] nums) {
+        int prev = nums[0];
+        int prePrev = 0;
+
+        for (int index = 1; index < nums.length; index++) {
+            int pick = nums[index];
+
+            if (index > 1)
+                pick = pick + prePrev;
+            int nonPick = 0 + prev;
+
+            prePrev = prev;
+            prev = Math.max(pick, nonPick);
+        }
+
+        return prev;
     }
 }
